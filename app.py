@@ -23,3 +23,22 @@ def track_and_redirect():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)  # Render default port
+
+from flask import Flask, request
+
+app = Flask(__name__)
+
+@app.route('/')
+def track_visit():
+    # Get the real IP address
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    user_agent = request.headers.get('User-Agent', 'Unknown')
+
+    # Log the IP and User-Agent
+    print(f"Visitor IP: {ip} | User-Agent: {user_agent}")
+
+    return "Tracking IP", 200
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
+
