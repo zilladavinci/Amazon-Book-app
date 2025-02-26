@@ -50,3 +50,29 @@ def track_visitor():
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8080)
+
+from flask import Flask, request
+import logging
+
+app = Flask(__name__)
+
+# Configure logging to store visitor data in logs.txt
+logging.basicConfig(filename="logs.txt", level=logging.INFO, format="%(asctime)s - %(message)s")
+
+@app.route("/")
+def track():
+    # Get real visitor IP (fixes 127.0.0.1 issue)
+    visitor_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+    user_agent = request.headers.get("User-Agent", "Unknown")
+    referrer = request.headers.get("Referer", "Direct Visit")
+
+    # Log visitor info
+    log_entry = f"IP: {visitor_ip} | Agent: {user_agent} | Referrer: {referrer}"
+    logging.info(log_entry)
+    print(log_entry)
+
+    return "✅ Tracking Active", 200
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
+
