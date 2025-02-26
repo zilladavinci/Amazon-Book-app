@@ -1,22 +1,25 @@
 from flask import Flask, request, redirect
+import logging
 
 app = Flask(__name__)
 
-# Amazon product link (replace with yours)
-AMAZON_URL = "https://www.amazon.com/dp/B0DXLK1CYQ"
+# Setup Logging
+logging.basicConfig(filename="visitor_logs.txt", level=logging.INFO, format="%(asctime)s - %(message)s")
 
-@app.route("/")
-def track():
-    visitor_ip = request.headers.get("X-Forwarded-For", request.remote_addr)
-    user_agent = request.headers.get("User-Agent", "Unknown")
-    referrer = request.headers.get("Referer", "Direct Visit")
+# Amazon Redirect Link
+AMAZON_LINK = "https://www.amazon.com/dp/B0DXLK1CYQ"
 
-    # Log visitor data (store in a local text file)
-    with open("logs.txt", "a") as log:
-        log.write(f"IP: {visitor_ip} | Agent: {user_agent} | Referrer: {referrer}\n")
+@app.route('/')
+def track_and_redirect():
+    visitor_ip = request.remote_addr  # Get IP Address
+    user_agent = request.headers.get('User-Agent', 'Unknown')  # Get User-Agent
+    referrer = request.referrer or "Direct Visit"  # Get Referrer (if available)
 
-    # Redirect to Amazon
-    return redirect(AMAZON_URL, code=302)
+    # Log the visitor details
+    log_entry = f"IP: {visitor_ip} | Referrer: {referrer} | User-Agent: {user_agent}"
+    app.logger.info(log_entry)
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    return redirect(AMAZON_LINK)  # Redirect to Amazon
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)  # Render default port
